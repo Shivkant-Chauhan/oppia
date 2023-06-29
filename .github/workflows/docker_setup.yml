@@ -1,15 +1,5 @@
 name: Docker Setup Test
-on:
-  merge_group:
-    types: [checks_requested]
-  push:
-    branches:
-      - develop
-      - release-*
-  pull_request:
-    branches:
-      - develop
-      - release-*
+on: [push]
 
 jobs:
   build:
@@ -24,7 +14,7 @@ jobs:
       - name: Start Containers
         run: |
           echo ---Starting containers---
-          docker compose up -d
+          docker compose up
 
       - name: Checking server reachability
         run: |
