@@ -71,9 +71,9 @@ services:
       - OPPIA_IS_DOCKERIZED=true
     depends_on:
       angular-build:
-        condition: service_healthy
+        condition: service_started
       webpack-compiler:
-        condition: service_healthy
+        condition: service_started
       datastore:
         condition: service_healthy
       elasticsearch:
