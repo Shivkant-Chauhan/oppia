@@ -1,0 +1,36 @@
+name: Frontend Karma tests
+on: [push]
+# on:
+#   merge_group:
+#     types: [checks_requested]
+#   push:
+#     branches:
+#       - develop
+#       - release-*
+#   pull_request:
+#     branches:
+#       - develop
+#       - release-*
+
+jobs:
+  frontend-karma-tests:
+    runs-on:  ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Describe filesystem
+        run: |
+          pwd
+          ls /home/runner/work
+          ls /home/runner/work/oppia
+          ls /home/runner/work/oppia/oppia
+          echo $GITHUB_WORKSPACE
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8.15'
+          architecture: 'x64'
+      - uses: ./.github/actions/merge
+      - name: Installing chrome
+        run: sh .github/install-chrome/install-chrome.sh
