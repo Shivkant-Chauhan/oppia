@@ -1,4 +1,4 @@
-name: Frontend Karma tests
+name: Install chrome
 on: [push]
 # on:
 #   merge_group:
@@ -13,7 +13,7 @@ on: [push]
 #       - release-*
 
 jobs:
-  frontend-karma-tests:
+  chrome-workflow:
     runs-on:  ${{ matrix.os }}
     strategy:
       matrix:
@@ -33,4 +33,7 @@ jobs:
           architecture: 'x64'
       - uses: ./.github/actions/merge
       - name: Installing chrome
-        run: sh .github/install-chrome/install-chrome.sh
+        run: |
+          google-chrome --version
+          sh .github/install-chrome/install-chrome.sh
+          google-chrome --version
