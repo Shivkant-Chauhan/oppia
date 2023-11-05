@@ -27,6 +27,9 @@ jobs:
           python-version: '3.8.15'
           architecture: 'x64'
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
+      - run: |
+          google-chrome --version
+          google-chrome --version | awk '{print $$3}'
       - name: Install packages for optimized coverage
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
         run: sudo apt-get install -y python-dev-is-python3 gcc
