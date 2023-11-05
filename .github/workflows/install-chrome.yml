@@ -13,62 +13,47 @@ on: [push]
 #       - release-*
 
 jobs:
-  backend-issue:
-    name: Run backend tests
+  chrome-workflow:
     runs-on:  ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-22.04]
-        # shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v3
+      - name: Describe filesystem
+        run: |
+          pwd
+          ls /home/runner/work
+          ls /home/runner/work/oppia
+          ls /home/runner/work/oppia/oppia
+          echo $GITHUB_WORKSPACE
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8.15'
           architecture: 'x64'
-        if: startsWith(github.head_ref, 'update-changelog-for-release') == false
+      - uses: ./.github/actions/merge
+      - uses: nanasess/setup-chromedriver@v2
+        with:
+          # Optional: do not specify to match Chrome's version
+          chromedriver-version: '102.0.5005.61'
       - run: |
-          google-chrome --version
-          google-chrome --version | awk '{print $$3}'
-      - name: Install packages for optimized coverage
-        if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: sudo apt-get install -y python-dev-is-python3 gcc
-      - name: Install coverage and configparser
-        if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: pip install coverage configparser
+          export DISPLAY=:99
+          chromedriver --url-base=/wd/hub &
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+      - run: google-chrome --version
+      - name: Install ffmpeg
+        run: sudo apt install ffmpeg
+      # Deleting ubuntu files for getting more space (refer: https://github.com/actions/runner-images/issues/2840#issuecomment-1284059930)
       - name: Deleting ubuntu files
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-      - name: Initialize Containers
+      - name: Initializing Containers
         run: |
-          sudo make run-devserver
-          make stop
-      - name: Run backend test shard
-        if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: PYTHONIOENCODING=utf-8 make run_tests.backend PYTHON_ARGS="--test_target=scripts.check_backend_associated_test_file_test --generate_coverage_report"
-
-  # chrome-workflow:
-  #   runs-on:  ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-22.04]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Describe filesystem
-  #       run: |
-  #         pwd
-  #         ls /home/runner/work
-  #         ls /home/runner/work/oppia
-  #         ls /home/runner/work/oppia/oppia
-  #         echo $GITHUB_WORKSPACE
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.8.15'
-  #         architecture: 'x64'
-  #     - uses: ./.github/actions/merge
-  #     - name: Installing chrome
-  #       run: |
-  #         google-chrome --version
-  #         sh .github/install-chrome/install-chrome.sh
-  #         google-chrome --version
+          sudo make build
+          sudo docker compose up angular-build -d
+          sudo docker cp oppia-angular-build:/app/oppia/node_modules .
+      - name: Add permissions to the root oppia folder
+        run: sudo chmod -R 777 /home/runner/work/oppia/oppia
+      - name: Run E2E Test
+        run: sudo xvfb-run -a --server-args="-screen 0, 1285x1000x24" make run_tests.e2e suite=navigation
