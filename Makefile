@@ -138,7 +138,13 @@ run_tests.acceptance: ## Runs the acceptance tests for the parsed suite
 	@echo '------------------------------------------------------'
 	$(MAKE) stop
 
-CHROME_VERSION := $(shell google-chrome --version | awk '{print $$3}')
+ifeq ($(shell uname), Darwin)
+    # macOS
+    CHROME_VERSION := $(shell /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | awk '{print $$3}')
+else
+    # Linux
+    CHROME_VERSION := $(shell google-chrome --version | awk '{print $$3}')
+endif
 
 run_tests.e2e: ## Runs the e2e tests for the parsed suite
 ## Flags for the e2e tests
