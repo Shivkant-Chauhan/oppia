@@ -1,16 +1,16 @@
 name: Python type checks
-# on: [push]
-on:
-  merge_group:
-    types: [checks_requested]
-  push:
-    branches:
-      - develop
-      - release-*
-  pull_request:
-    branches:
-      - develop
-      - release-*
+on: [push]
+# on:
+#   merge_group:
+#     types: [checks_requested]
+#   push:
+#     branches:
+#       - develop
+#       - release-*
+#   pull_request:
+#     branches:
+#       - develop
+#       - release-*
 
 jobs:
   run_tests:
@@ -30,13 +30,13 @@ jobs:
           sudo apt update
           sudo apt install python2 -y
       - uses: ./.github/actions/merge
-      - name: Initialize Containers
-        run: |
-          echo ---Initializing containers---
-          docker compose up dev-server --no-deps -d
-          docker compose up angular-build -d
-          echo ---Copying node_modules from container---
-          sudo docker cp oppia-angular-build:/app/oppia/node_modules .
+      # - name: Initialize Containers
+      #   run: |
+      #     echo ---Initializing containers---
+      #     docker compose up dev-server --no-deps -d
+      #     docker compose up angular-build -d
+      #     echo ---Copying node_modules from container---
+      #     sudo docker cp oppia-angular-build:/app/oppia/node_modules .
       - name: Stop Containers
         run: make stop
       - name: Run Mypy type checks

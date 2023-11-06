@@ -1,16 +1,16 @@
 name: Custom ESLint tests
-# on: [push]
-on:
-  merge_group:
-    types: [checks_requested]
-  push:
-    branches:
-      - develop
-      - release-*
-  pull_request:
-    branches:
-      - develop
-      - release-*
+on: [push]
+# on:
+#   merge_group:
+#     types: [checks_requested]
+#   push:
+#     branches:
+#       - develop
+#       - release-*
+#   pull_request:
+#     branches:
+#       - develop
+#       - release-*
 
 jobs:
   run_tests:
@@ -26,13 +26,13 @@ jobs:
           python-version: '3.8.15'
           architecture: 'x64'
       - uses: ./.github/actions/merge
-      - name: Initialize Containers
-        run: |
-          sudo make build
-          sudo make run-devserver
+      # - name: Initialize Containers
+      #   run: |
+      #     sudo make build
+      #     sudo make run-devserver
       - name: Run ESLint Tests
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: docker compose exec dev-server python -m scripts.run_custom_eslint_tests
+        run: make run_tests.custom_eslint
       - name: Report failure if failed on oppia/oppia develop branch
         if: ${{ failure() && github.event_name == 'push' && github.repository == 'oppia/oppia' && github.ref == 'refs/heads/develop'}}
         uses: ./.github/actions/send-webhook-notification
