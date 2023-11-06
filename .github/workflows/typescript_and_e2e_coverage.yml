@@ -32,10 +32,10 @@ jobs:
           pip install --require-hashes --no-deps -r requirements_dev.txt
       - name: Install chrome
         run: python -m scripts.install_chrome_for_ci
-      - name: Initialize Containers
-        run: |
-          sudo make build
-          sudo make run-devserver
+      # - name: Initialize Containers
+      #   run: |
+      #     sudo make build
+      #     sudo make run-devserver
       - name: Check that all e2e test files are captured in wdio.conf.js
         run: make run_tests.check_e2e_tests_are_captured_in_ci
       - name: Run typescript tests
